@@ -4,7 +4,8 @@ import Layout from '../../components/Layout';
 import factory from '../../ethereum/factory';
 import web3 from '../../ethereum/web3';
 import { Router } from '../../routes';
-import {setJSON,getJSON} from '../../IPFS';
+import {setJSON} from '../../IPFS';
+import ipfs from '../../IPFS';
 
 class CampaignNew extends Component {
   state = {
@@ -14,18 +15,19 @@ class CampaignNew extends Component {
     projectName : '',
     description : '',
     imageBuffer : null,
-    ipfsHash : ''
+    ipfsTextHash : '',
+    ipfsImageHash : ''
 
   };
 
   captureFile = (event)=> {
     event.preventDefault()
     const file = event.target.files[0]
-    const reader = new window.FileReader()
+    const reader = new FileReader()
     reader.readAsArrayBuffer(file)
     reader.onloadend = () => {
       this.setState({ imageBuffer: Buffer(reader.result) })
-      console.log('buffer', this.state.buffer)
+      console.log('buffer', this.state.imageBuffer)
     }
   }
 
@@ -49,8 +51,8 @@ class CampaignNew extends Component {
 
         const data = JSON.stringify({
           projectName : this.state.projectName,
-          description : this.state.description,
-          imageBuffer : this.state.imageBuffer
+          description : this.state.description
+          
         });
 
         // await ipfs.files.add(data, (error, result) => {
@@ -62,11 +64,13 @@ class CampaignNew extends Component {
         //     this.setState({ ipfsHash: result[0].hash })
         //     console.log('ifpsHash', this.state.ipfsHash)
         //   });
-        const ipfsHash = await setJSON(data);
-        console.log(ipfsHash);
-        console.log(typeof ipfsHash);
-        this.setState({ipfsHash});
+        const ipfsTextHash = await setJSON(data);
+        console.log(ipfsTextHash);
+        this.setState({ipfsTextHash});
         
+        const ipfsImageHash = await ipfs.add(this.state.imageBuffer);
+        console.log(ipfsImageHash);
+        this.setState({ipfsImageHash});
 
         
 
@@ -75,7 +79,7 @@ class CampaignNew extends Component {
         const accounts = await web3.eth.getAccounts();
         console.log(accounts);
         await factory.methods
-          .createCampaign(this.state.minimumContribution, this.state.ipfsHash)
+          .createCampaign(this.state.minimumContribution, this.state.ipfsTextHash, this.state.ipfsImageHash)
           .send({
             from: accounts[0]
           });

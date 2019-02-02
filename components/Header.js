@@ -1,12 +1,13 @@
 import React from 'react';
-import { Menu } from 'semantic-ui-react';
+import { Menu , Segment } from 'semantic-ui-react';
 import { Link } from '../routes';
 
 export default () => {
   return (
-    <Menu style={{ marginTop: '10px' }}>
+    <Segment inverted>
+      <Menu inverted pointing secondary>
       <Link route="/">
-        <a className="item">CrowdCoin</a>
+        <a className="item">Crowd-Funding</a>
       </Link>
 
       <Menu.Menu position="right">
@@ -19,5 +20,6 @@ export default () => {
         </Link>
       </Menu.Menu>
     </Menu>
+    </Segment>
   );
 };
