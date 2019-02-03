@@ -28,4 +28,4 @@
 
 2. ![img2](https://github.com/saketoz98/Student-Crowdfunding/blob/master/images/img2.png)
 
-3. ![img3](https://github.com/saketoz98/Student-Crowdfunding/blob/master/images/img1.png)
+3. ![img3](https://github.com/saketoz98/Student-Crowdfunding/blob/master/images/img3.png)
