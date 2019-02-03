@@ -4,14 +4,22 @@ import { Link } from '../../../routes';
 import Layout from '../../../components/Layout';
 import Campaign from '../../../ethereum/campaign';
 import RequestRow from '../../../components/RequestRow';
+import web3 from '../../../ethereum/web3';
+
 
 class RequestIndex extends Component {
+  state = {
+    disabled : true
+  }
   static async getInitialProps(props) {
     const { address } = props.query;
     const campaign = Campaign(address);
     const requestCount = await campaign.methods.getRequestsCount().call();
     const approversCount = await campaign.methods.approversCount().call();
-
+    // const account = await web3.currentProvider.publicConfigStore.getState().selectedAddress;
+    const manager = await campaign.methods.manager().call();
+    console.log(manager)
+    
     const requests = await Promise.all(
       Array(parseInt(requestCount))
         .fill()
@@ -20,7 +28,7 @@ class RequestIndex extends Component {
         })
     );
 
-    return { address, requests, requestCount, approversCount };
+    return { address, requests, requestCount, approversCount, manager };
   }
 
   renderRows() {
@@ -39,17 +47,25 @@ class RequestIndex extends Component {
 
   render() {
     const { Header, Row, HeaderCell, Body } = Table;
-
+    console.log('************Here*****************')
+    
+    
+      
+  
     return (
       <Layout>
         <h3>Requests</h3>
-        <Link route={`/campaigns/${this.props.address}/requests/new`}>
-          <a>
-            <Button primary floated="right" style={{ marginBottom: 10 }}>
-              Add Request
-            </Button>
-          </a>
-        </Link>
+        
+            <Link route={`/campaigns/${this.props.address}/requests/new`}>
+            <a>
+              <Button primary floated="right"  style={{ marginBottom: 10 }}>
+                Add Request
+              </Button>
+            </a>
+          </Link> 
+          
+       
+        
         <Table>
           <Header>
             <Row>

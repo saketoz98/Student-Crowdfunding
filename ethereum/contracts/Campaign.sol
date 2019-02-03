@@ -4,8 +4,8 @@ pragma solidity ^0.4.17;
 contract CampaignFactory {
     address[] public deployedCampaigns;
 
-    function createCampaign(uint goal, string textHash, string imgHash) public {
-        address newCampaign = new Campaign(goal,textHash,imgHash, msg.sender);
+    function createCampaign(uint goal, string textHash) public {
+        address newCampaign = new Campaign(goal,textHash, msg.sender);
         deployedCampaigns.push(newCampaign);
     }
 
@@ -30,7 +30,6 @@ contract Campaign {
     uint public minimumContribution;
     uint public fund_goal;
     string public text_hash;
-    string public img_hash;
     uint public amount_used;
     mapping(address => bool) public approvers;
     uint public approversCount;
@@ -40,10 +39,9 @@ contract Campaign {
         _;
     }
 
-    function Campaign(uint goal,string textHash,string imgHash ,address creator) public {
+    function Campaign(uint goal,string textHash,address creator) public {
         manager = creator;
         text_hash = textHash;
-        img_hash = imgHash;
         fund_goal = goal;
         amount_used = 0;
         minimumContribution = 100;
@@ -109,7 +107,5 @@ contract Campaign {
     function gettexthash() public view returns (string){
         return text_hash;
     }
-    function getimghash() public view returns (string){
-        return img_hash;
-    }
+
 }

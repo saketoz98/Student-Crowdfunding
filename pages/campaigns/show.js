@@ -5,20 +5,27 @@ import Campaign from '../../ethereum/campaign';
 import web3 from '../../ethereum/web3';
 import ContributeForm from '../../components/ContributeForm';
 import { Link } from '../../routes';
-
+import { getJSON } from '../../IPFS';
 class CampaignShow extends Component {
   static async getInitialProps(props) {
     const campaign = Campaign(props.query.address);
 
     const summary = await campaign.methods.getSummary().call();
+    let ipfsTextHash = await campaign.methods.gettexthash().call();
+    const textData = await getJSON(ipfsTextHash);
+    const parsedtextdata = JSON.parse(textData);
+
 
     return {
       address: props.query.address,
       minimumContribution: summary[0],
       balance: summary[1],
       requestsCount: summary[2],
-      approversCount: summary[3],
-      manager: summary[4]
+      contributorsCount: summary[3],
+      manager: summary[4],
+      projectName: parsedtextdata.projectName,
+      description: parsedtextdata.description,
+      imgurl: parsedtextdata.imgurl
     };
   }
 
@@ -28,22 +35,22 @@ class CampaignShow extends Component {
       manager,
       minimumContribution,
       requestsCount,
-      approversCount
+      contributorsCount
     } = this.props;
 
     const items = [
       {
         header: manager,
-        meta: 'Address of Manager',
+        meta: 'Address of Developer',
         description:
-          'The manager created this campaign and can create requests to withdraw money',
+          'Blockchain address of the developer.',
         style: { overflowWrap: 'break-word' }
       },
       {
         header: minimumContribution,
         meta: 'Minimum Contribution (wei)',
         description:
-          'You must contribute at least this much wei to become an approver'
+          'You must contribute at least this much wei to become an contributor'
       },
       {
         header: requestsCount,
@@ -52,16 +59,16 @@ class CampaignShow extends Component {
           'A request tries to withdraw money from the contract. Requests must be approved by approvers'
       },
       {
-        header: approversCount,
-        meta: 'Number of Approvers',
+        header: contributorsCount,
+        meta: 'Number of Contributors',
         description:
-          'Number of people who have already donated to this campaign'
+          'Number of people who have already donated to this project'
       },
       {
         header: web3.utils.fromWei(balance, 'ether'),
         meta: 'Campaign Balance (ether)',
         description:
-          'The balance is how much money this campaign has left to spend.'
+          'The balance is how much money this project has left to spend.'
       }
     ];
 
@@ -69,9 +76,26 @@ class CampaignShow extends Component {
   }
 
   render() {
+    console.log(this.props.projectName);
+
     return (
       <Layout>
-        <h3>Campaign Show</h3>
+        <div class="ui grid ">
+        <h1 class="eight wide column ui header">Project : {this.props.projectName}</h1>
+        <div class="eight wide column"><h3><div className = "ui teal tag label">Description :</div><br></br>
+        {this.props.description}</h3></div>
+        </div>
+        <br></br><br></br>
+
+        <img src={this.props.imgurl} class="ui large image rounded bordered" ></img>
+        <br></br><br></br>
+
+        <div class="ui grid">
+          <div class="eight wide column"><hr></hr></div>
+        </div>
+        
+        <h3 class="ui red tag label">Details</h3>
+        <br></br><br></br>
         <Grid>
           <Grid.Row>
             <Grid.Column width={10}>{this.renderCards()}</Grid.Column>

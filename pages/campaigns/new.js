@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Form, Button, Input, Message } from 'semantic-ui-react';
+import { Form, Button, Input, Message, TextArea } from 'semantic-ui-react';
 import Layout from '../../components/Layout';
 import factory from '../../ethereum/factory';
 import web3 from '../../ethereum/web3';
@@ -16,7 +16,8 @@ class CampaignNew extends Component {
     description : '',
     imageBuffer : null,
     ipfsTextHash : '',
-    ipfsImageHash : ''
+    ipfsImageHash : '',
+    imgurl : ''
 
   };
 
@@ -51,8 +52,8 @@ class CampaignNew extends Component {
 
         const data = JSON.stringify({
           projectName : this.state.projectName,
-          description : this.state.description
-          
+          description : this.state.description,
+          imgurl : this.state.imgurl
         });
 
         // await ipfs.files.add(data, (error, result) => {
@@ -68,23 +69,25 @@ class CampaignNew extends Component {
         console.log(ipfsTextHash);
         this.setState({ipfsTextHash});
         
-        const ipfsImageHash = await ipfs.add(this.state.imageBuffer);
-        console.log(ipfsImageHash);
-        this.setState({ipfsImageHash});
+        // const ipfsImageHash = await ipfs.add(this.state.imageBuffer);
+        // console.log(ipfsImageHash);
+        // this.setState({ipfsImageHash});
 
         
 
       try {
-        console.log("try start");
+        console.log("**********try start*************");
+      
         const accounts = await web3.eth.getAccounts();
         console.log(accounts);
         await factory.methods
-          .createCampaign(this.state.minimumContribution, this.state.ipfsTextHash, this.state.ipfsImageHash)
+          .createCampaign(this.state.minimumContribution, this.state.ipfsTextHash)
           .send({
             from: accounts[0]
           });
-        console.log("campaign done");
-        Router.pushRoute('/');
+        console.log("project done");
+        // change here
+        Router.pushRoute('/campaigns');
       } catch (err) {
         this.setState({ errorMessage: err.message });
       }
@@ -95,11 +98,11 @@ class CampaignNew extends Component {
   render() {
     return (
       <Layout>
-        <h3>Create a Campaign</h3>
+        <h3>Create a Project</h3>
 
         <Form onSubmit={this.onSubmit} error={!!this.state.errorMessage}>
           <Form.Field>
-            <label>Minimum Contribution</label>
+            <label>Funding Goal</label>
             <Input
               label="wei"
               labelPosition="right"
@@ -118,19 +121,20 @@ class CampaignNew extends Component {
               />
             </Form.Field>
 
+            <Form.Field
+              id='form-textarea-control-opinion'
+              control={TextArea}
+              label='Description'
+              placeholder='Describe Your Project'
+              value = {this.state.description}
+              onChange = {event=> this.setState({description: event.target.value})}
+            />
             <Form.Field>
-            <label>Description</label>
+            <label>Enter image URL</label>
             <Input
-              value={this.state.description}
-              onChange={event =>
-                this.setState({ description:event.target.value })}
-            />                            
-            </Form.Field>
-            <Form.Field>
-            <label>Upload Image</label>
-            <Input
-              type = 'file'
-              onChange = {this.captureFile}
+              type = 'text'
+              value = {this.state.imgurl}
+              onChange = {event=> this.setState({imgurl:event.target.value})}
             />                            
             </Form.Field>
           <Message error header="Oops!" content={this.state.errorMessage} />
